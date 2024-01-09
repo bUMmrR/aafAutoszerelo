@@ -23,11 +23,13 @@ namespace aafAutoszerelo
         private void Form1_Load(object sender, EventArgs e)
         {
             comboBox1.SelectedIndex = 0;
-            adatbeolvasas("input.txt");
-            tablazatFelkeszitise();
-            tablazatFeltoltese();
+
         }
 
+
+        /// <summary>
+        /// Fajlbeírás után felkésziti a tablazatbaIras függvényt mert ugye clean code 😒
+        /// </summary>
         private void tablazatFeltoltese()
         {
             for (int i = 0; i < dataGridView1.ColumnCount; i++)
@@ -39,6 +41,12 @@ namespace aafAutoszerelo
             }
         }
 
+
+        /// <summary>
+        /// Beirja a dataGridView-ba a megfelelő értékeket
+        /// </summary>
+        /// <param name="i">Sor</param>
+        /// <param name="j">Oszlop</param>
         private void tablazatbaIras(int i, int j)
         {
             int nap = comboBox1.SelectedIndex;
@@ -53,6 +61,10 @@ namespace aafAutoszerelo
             }
         }
 
+
+        /// <summary>
+        /// Formázza a dataGridView-ot
+        /// </summary>
         private void tablazatFelkeszitise()
         {
             dataGridView1.RowHeadersVisible = false;
@@ -66,7 +78,10 @@ namespace aafAutoszerelo
         }
 
 
-
+        /// <summary>
+        /// Adatbeolvasás
+        /// </summary>
+        /// <param name="path">Utvonal</param>
         private void adatbeolvasas(string path)
         {
             StreamReader r = new StreamReader(path);
@@ -74,8 +89,15 @@ namespace aafAutoszerelo
             {
                 szereloks.Add(new szerelok(r.ReadLine()));
             }
+            r.Close();
         }
 
+
+        /// <summary>
+        /// A katintott mező lefoglalása ha még nincs lefoglalva
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex != 0 && szereloks[e.RowIndex].lefoglatOrak[comboBox1.SelectedIndex][e.ColumnIndex-1] != '1')
@@ -89,11 +111,22 @@ namespace aafAutoszerelo
             }
         }
 
+
+
+        /// <summary>
+        /// Nap csere
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             tablazatFeltoltese();
         }
-
+        /// <summary>
+        /// Lekérdezések
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (comboBox2.SelectedIndex == 0)
@@ -101,12 +134,10 @@ namespace aafAutoszerelo
             else if (comboBox2.SelectedIndex == 1)
                 label3.Text = HanyEsMelyikoraFoglalt(textBox1.Text);
             else if (comboBox2.SelectedIndex == 2)
-                label3.Text = KikVegzikAMunkat(textBox1.Text);
+                label3.Text = KikVegzikAMunkat(textBox1.Text) != null ? "A munkát végzik: "+ KikVegzikAMunkat(textBox1.Text) : "Nem található ilyen munkakőr";
             else if (comboBox2.SelectedIndex == 3)
-                Console.WriteLine("asd");
-            else if (comboBox2.SelectedIndex == 4)
                 label3.Text = EgynekHanySzabadOra(textBox1.Text) != -1 ? EgynekHanySzabadOra(textBox1.Text) + " db órája van szabadon " + textBox1.Text + "-nak/nek" : "Nem található ilyen személy";
-            else if (comboBox2.SelectedIndex == 5)
+            else if (comboBox2.SelectedIndex == 4)
                 label3.Text = OssesSzabadOrakSzama() + " db óra van összesen szabadon";
         }
 
@@ -126,9 +157,9 @@ namespace aafAutoszerelo
                 {
                     nevek += item.getNev() + ", ";
                 }
-                return string.Format("Ők végzik a kiválasztott munkakőrt: " + nevek);
+                return nevek;
             }
-            return "Nem található ilyen munkakőr";
+            return null;
         }
 
 
@@ -152,9 +183,9 @@ namespace aafAutoszerelo
                         napok += comboBox1.Items[i] +";";
                     }
                 }
-                return string.Format(ora+" Foglalt oraja van és ezeken a napokon van lefoglalva: " + napok);
+                return string.Format(ora+";"+napok);
             }
-            return "Nem található ilyen személy";
+            return null;
         }
 
         private string SzereloElfoglaltsaga(string nev)
@@ -189,6 +220,29 @@ namespace aafAutoszerelo
                 db += szereloks[i].hanySzabadOra();
             }
             return db;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            StreamWriter r = new StreamWriter("extract.txt");
+            foreach (var item in szereloks)
+            {
+                r.WriteLine(item.ToString());
+            }
+            r.Close();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                adatbeolvasas(textBox2.Text);
+                tablazatFelkeszitise();
+                tablazatFeltoltese();
+            }
+            catch {
+                MessageBox.Show("Nem Található ilyen fájl");
+            }
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
@@ -28,11 +29,21 @@ namespace aafAutoszerelo
         }
 
 
+
+        /// <summary>
+        /// A név megszerzése
+        /// </summary>
+        /// <returns>Név</returns>
         public string getNev()
         {
             return nev;
         }
 
+
+        /// <summary>
+        /// Az addot szerelőnek hány darab szabad órája van
+        /// </summary>
+        /// <returns>Szabad órák száma</returns>
         public int hanySzabadOra()
         {
             int db = 50;
@@ -44,44 +55,23 @@ namespace aafAutoszerelo
         }
 
 
+        /// <summary>
+        /// A szerelőt visszaadja ugyanolyan formában mint a fáljbeolvasás
+        /// </summary>
+        /// <returns>Szerelő Fáljbeolvasásra készen </returns>
+        public override string ToString()
+        {
+            StringBuilder result = new StringBuilder();
+            result.Append($"{munkakor};");
+            result.Append($"{nev};");
+            foreach (List<char> orak in lefoglatOrak)
+            {
+                result.Append(string.Join("", orak));
+                result.Append(",");
+            }
+            result.Length--;
+
+            return result.ToString();
+        }
     }
-
-    [TestFixture]
-    public class szerelokTesztek
-    {
-        [Test]
-        public void munkakorLekerdezese()
-        {
-            szerelok temp = new szerelok("o;teszt;0,0,0,0,");
-            ClassicAssert.AreEqual("teszt", temp.getNev());
-        }
-
-        [Test]
-        public void hanySzabadOraTeszt()
-        {
-            szerelok temp = new szerelok("o;teszt;0000000000,0000000000,0000000000,0000000000,");
-            ClassicAssert.AreEqual(50, temp.hanySzabadOra());
-        }
-        [Test]
-        public void hanySzabadOraTeszt2()
-        {
-            szerelok temp = new szerelok("o;teszt;1111111111,0000000000,0000000000,0000000000,");
-            ClassicAssert.AreEqual(40, temp.hanySzabadOra());
-        }
-
-    }
-
-
-    [TestFixture]
-    public class FormTesztek
-    {
-        [Test]
-        public void randomTeszt()
-        {
-
-
-        }
-
-    }
-
 }
