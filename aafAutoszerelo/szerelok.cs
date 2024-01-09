@@ -71,4 +71,17 @@ namespace aafAutoszerelo
 
     }
 
+
+    [TestFixture]
+    public class FormTesztek
+    {
+        [Test]
+        public void randomTeszt()
+        {
+
+
+        }
+
+    }
+
 }

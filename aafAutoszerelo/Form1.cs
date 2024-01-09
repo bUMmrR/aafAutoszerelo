@@ -76,8 +76,17 @@ namespace aafAutoszerelo
             }
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.ColumnIndex != 0 && szereloks[e.RowIndex].lefoglatOrak[comboBox1.SelectedIndex][e.ColumnIndex-1] != '1')
+            {
+                DialogResult dr = MessageBox.Show("Leszeretné foglali ezt a helyet?", "Foglalás", MessageBoxButtons.YesNo);
+                if (dr == DialogResult.Yes)
+                {
+                    dataGridView1[e.ColumnIndex, e.RowIndex].Style.BackColor = Color.Red;
+                    szereloks[e.RowIndex].lefoglatOrak[comboBox1.SelectedIndex][e.ColumnIndex - 1] = '1';
+                }
+            }
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -90,16 +99,62 @@ namespace aafAutoszerelo
             if (comboBox2.SelectedIndex == 0)
                 label3.Text = SzereloElfoglaltsaga(textBox1.Text) != null ? textBox1.Text + " szerelő elfoglaltsága: " + SzereloElfoglaltsaga(textBox1.Text) : "Nem található ilyen személy";
             else if (comboBox2.SelectedIndex == 1)
-                Console.WriteLine("asd");
+                label3.Text = HanyEsMelyikoraFoglalt(textBox1.Text);
             else if (comboBox2.SelectedIndex == 2)
-                Console.WriteLine("asd");
+                label3.Text = KikVegzikAMunkat(textBox1.Text);
             else if (comboBox2.SelectedIndex == 3)
                 Console.WriteLine("asd");
             else if (comboBox2.SelectedIndex == 4)
                 label3.Text = EgynekHanySzabadOra(textBox1.Text) != -1 ? EgynekHanySzabadOra(textBox1.Text) + " db órája van szabadon " + textBox1.Text + "-nak/nek" : "Nem található ilyen személy";
             else if (comboBox2.SelectedIndex == 5)
                 label3.Text = OssesSzabadOrakSzama() + " db óra van összesen szabadon";
+        }
 
+        /// <summary>
+        /// Viszaadja hogy egy azonos munkakőrt ki végzi el
+        /// </summary>
+        /// <param name="text">A munkakőr neve</param>
+        /// <returns>A munkakőr dolgozoit, vagy hogy nem található ilyen munkakőr</returns>
+
+        private string KikVegzikAMunkat(string text)
+        {
+            var szereloink = szereloks.Where(c => c.munkakor == text).ToList();
+            string nevek = "";
+            if (szereloink.Count != 0)
+            {
+                foreach (var item in szereloink)
+                {
+                    nevek += item.getNev() + ", ";
+                }
+                return string.Format("Ők végzik a kiválasztott munkakőrt: " + nevek);
+            }
+            return "Nem található ilyen munkakőr";
+        }
+
+
+        /// <summary>
+        /// Egy adott embernek viszadja a foglalt óráinak számát, illetve hogy melyik napokon vannak lefoglalva
+        /// </summary>
+        /// <param name="nev">A szerelő neve</param>
+        /// <returns></returns>
+        private string HanyEsMelyikoraFoglalt(string nev)
+        {
+            szerelok szerelonk = szereloks.Where(c => c.getNev() == nev).FirstOrDefault();
+            int ora;
+            string napok = "";
+            if (szerelonk != null)
+            {
+                ora = 50-szerelonk.hanySzabadOra();
+                for (int i = 0; i < szerelonk.lefoglatOrak.Count; i++)
+                {
+                    if (szerelonk.lefoglatOrak[i].Contains('1'))
+                    {
+                        napok += comboBox1.Items[i] +";";
+                    }
+                }
+                return string.Format(ora+" Foglalt oraja van és ezeken a napokon van lefoglalva: " + napok);
+            }
+            return "Nem található ilyen személy";
         }
 
         private string SzereloElfoglaltsaga(string nev)
@@ -122,6 +177,10 @@ namespace aafAutoszerelo
             return -1;
         }
 
+        /// <summary>
+        /// Az ősszes szerelő szabad óráit szamolja ki
+        /// </summary>
+        /// <returns>A szerelők szabad óráit</returns>
         private int OssesSzabadOrakSzama()
         {
             int db = 0;
@@ -129,7 +188,6 @@ namespace aafAutoszerelo
             {
                 db += szereloks[i].hanySzabadOra();
             }
-
             return db;
         }
     }
